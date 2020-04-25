@@ -17,5 +17,8 @@
           <label>Margin at top of screen (panel etc) (px)</label>
           <default>0</default>
         </entry>
+        <entry name="excludes" type="string">
+          <label>Window captions to ignore</label>
+        </entry>
     </group>
 </kcfg>

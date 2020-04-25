@@ -82,6 +82,20 @@
        </item>
       </layout>
      </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Window captions to exclude</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="kcfg_excludes"></widget>
+       </item>
+      </layout>
+     </item>
     </layout>
    </item>
   </layout>

@@ -9,11 +9,16 @@ workspace.screenEdgeTolerance = readConfig("tolerance", 25);
 workspace.topMargin = readConfig("topMargin", 16);
 
 // list of clients to exclude
-var excludes = [
-    "Desktop — Plasma",
-    "Latte Dock",
-    "Latte Shell — Latte Dock"
-];
+var excludes = readConfig("excludes", "");
+workspace.excludes = [
+  "Desktop — Plasma",
+  "Latte Shell — Latte Dock",
+  "Latte Dock"
+].concat((excludes == "" ? [] : ("" + excludes).split("\n")));
+
+// electricBorderMaximise doesnt place windows
+// properly so it has been replaced
+options.electricBorderMaximize = false;
 
 // constants
 var ScreenEdge = {
@@ -26,10 +31,6 @@ var ScreenEdge = {
   BOTTOM_LEFT:  4,
   BOTTOM_RIGHT: 5,
 };
-
-// electricBorderMaximise doesnt place windows
-// properly so it has been replaced
-options.electricBorderMaximize = false;
 
 // gogo
 connectClients();
@@ -76,7 +77,7 @@ function onClientMoved(client) {
 // resize + add the gaps
 function maxAndGap(client, screenEdge) {
     if (clientIsExcluded(client)) return
-        
+
     var maxArea = workspace.clientArea(workspace.MaximizeArea, client);
     var height = maxArea.height;
     var width = maxArea.width;
@@ -302,7 +303,7 @@ function getClientMonitor(client) {
 }
 
 function clientIsExcluded(client) {
-    var result = excludes.indexOf(client.caption) != -1;
+    var result = workspace.excludes.indexOf(client.caption) != -1;
     if (result) {
         print(client.caption + " is in our exclude list, skipping");        
     }
