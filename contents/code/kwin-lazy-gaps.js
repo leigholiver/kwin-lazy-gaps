@@ -303,11 +303,14 @@ function getClientMonitor(client) {
 }
 
 function clientIsExcluded(client) {
-    var result = workspace.excludes.indexOf(client.caption) != -1;
-    if (result) {
-        print(client.caption + " is in our exclude list, skipping");        
+    for(var i=0; i<workspace.excludes.length; i++) {        
+        var result = client.caption.match(new RegExp(workspace.excludes[i])) != null;
+        if (result) {
+            print(client.caption + " is in our exclude list, skipping");
+            return result;
+        }
     }
-    return result;
+    return false;
 }
 
 function connectClients() {
