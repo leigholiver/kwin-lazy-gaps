@@ -11,6 +11,7 @@ workspace.topMargin = readConfig("topMargin", 16);
 // list of clients to exclude
 var excludes = [
     "Desktop — Plasma",
+    "Latte Dock",
     "Latte Shell — Latte Dock"
 ];
 
@@ -74,11 +75,8 @@ function onClientMoved(client) {
 
 // resize + add the gaps
 function maxAndGap(client, screenEdge) {
-    if(excludes.indexOf(client.caption) != -1) {
-        print(client.caption + " is in our exclude list, skipping");
-        return;
-    }
-    
+    if (clientIsExcluded(client)) return
+        
     var maxArea = workspace.clientArea(workspace.MaximizeArea, client);
     var height = maxArea.height;
     var width = maxArea.width;
@@ -218,6 +216,8 @@ function getScreenEdge(client) {
 }
 
 function maximise(client) {
+    if (clientIsExcluded(client)) return
+
     var max = isReadyToMaximise(client);
     if(!!max) {
         client.geometry = {
@@ -232,11 +232,7 @@ function maximise(client) {
 
 function tileLeft() {
     var client = workspace.activeClient;
-
-    if(excludes.indexOf(client.caption) != -1) {
-        print(client.caption + " is in our exclude list, skipping");
-        return;
-    }
+    if (clientIsExcluded(client)) return
 
     var edge = getScreenEdge(client);
     print("Screen edge is: " + edge)
@@ -258,11 +254,7 @@ function tileLeft() {
 
 function tileRight() {
     var client = workspace.activeClient;
-
-    if(excludes.indexOf(client.caption) != -1) {
-        print(client.caption + " is in our exclude list, skipping");
-        return;
-    }
+    if (clientIsExcluded(client)) return
 
     var edge = getScreenEdge(client);
     print("Screen edge is: " + edge)
@@ -309,6 +301,13 @@ function getClientMonitor(client) {
     }   
 }
 
+function clientIsExcluded(client) {
+    var result = excludes.indexOf(client.caption) != -1;
+    if (result) {
+        print(client.caption + " is in our exclude list, skipping");        
+    }
+    return result;
+}
 
 function connectClients() {
     registerShortcut('kwin-lazy-gaps: Tile Left', 'kwin-lazy-gaps: Tile Left', 'Meta+Left', tileLeft);
@@ -327,7 +326,13 @@ function onClientAdded(client) {
     if (typeof client === 'undefined') {
         return;
     }
-    maximise(client);
+
+    print("adding client " + client.caption);
+    var edge = getScreenEdge(client);
+    if(edge == ScreenEdge.MAXIMIZED) {
+        maximise(client);
+    }
+
     client.clientFinishUserMovedResized.connect(onClientMoved);
     client.clientStepUserMovedResized.connect(movingStepper);
 }
