@@ -7,4 +7,4 @@ kwin script for that gaps aesthetic but without commiting to a tiling window man
 
 `make uninstall`: uninstall the plugin
 
-`make debug`: replace kwin with debug logging enabled and tail the log (you might need to re-run kwin --replace after using this)
+`make debug`: replace kwin with debug logging enabled and tail the log (you need to re-run kwin --replace after using this)

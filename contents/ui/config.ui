@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>KWin::QuarterTilingConfigForm</class>
- <widget class="QWidget" name="KWin::QuarterTilingConfigForm">
+ <class>KWin::LazyGapsConfigForm</class>
+ <widget class="QWidget" name="KWin::LazyGapsConfigForm">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -82,6 +82,27 @@
        </item>
       </layout>
      </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Window captions to exclude (each caption on a new line, regex supported)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="kcfg_excludes"></widget>
+       </item>
+      </layout>
+     </item>
+      <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>After changing settings, you must disable the plugin, apply, enable the plugin, and apply again.</string>
+         </property>
+        </widget>
+       </item>
     </layout>
    </item>
   </layout>

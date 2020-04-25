@@ -7,7 +7,7 @@ X-Plasma-API=javascript
 X-Plasma-MainScript=code/kwin-lazy-gaps.js
 
 X-KDE-PluginInfo-Name=lazy-gaps
-X-KDE-PluginInfo-Version=0.0.1
+X-KDE-PluginInfo-Version=0.0.2
 X-KDE-PluginInfo-Author=Leigh Oliver
 X-KDE-PluginInfo-Website=github.com/leigholiver/kwin-lazy-gaps
 X-KDE-PluginInfo-Email=leigholiver@users.noreply.github.com

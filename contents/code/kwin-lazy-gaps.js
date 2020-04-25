@@ -3,10 +3,9 @@
  * https://github.com/thetarkus/kwin-quick-tile-enhancements
  */
 
-// user vars
-workspace.gap = readConfig("gap", 10);
-workspace.screenEdgeTolerance = readConfig("tolerance", 25);
-workspace.topMargin = readConfig("topMargin", 16);
+ // electricBorderMaximise doesnt place windows
+// properly so it has been replaced
+options.electricBorderMaximize = false;
 
 // constants
 var ScreenEdge = {
@@ -20,16 +19,14 @@ var ScreenEdge = {
   BOTTOM_RIGHT: 5,
 };
 
-// electricBorderMaximise doesnt place windows
-// properly so it has been replaced
-options.electricBorderMaximize = false;
-
 // gogo
-connectClients();
+var config = {};
+startLazyGaps();
 
 // called when a window is maximised
 function onClientMaximize(client, h, v) {
     if (h && v) {
+        reloadConfig();
         var x = client.geometry.x;
         var y = client.geometry.y;
         var height = client.geometry.height;
@@ -46,7 +43,7 @@ function movingStepper(client) {
     var max = isReadyToMaximise(client);
     if(!!max) {
         workspace.hideOutline();
-        workspace.showOutline(max['x'], max['y'] + workspace.topMargin, max['width'], max['height']);
+        workspace.showOutline(max['x'], max['y'] + config.topMargin, max['width'], max['height']);
     }
     else {
         workspace.hideOutline();
@@ -55,6 +52,9 @@ function movingStepper(client) {
 
 // called when a window has finished moving or resizing
 function onClientMoved(client) {
+    reloadConfig();
+    if (clientIsExcluded(client)) return
+
     var screenEdge = getScreenEdge(client);
     print("screen edge is: " + screenEdge);
     if(screenEdge != ScreenEdge.FLOATING && screenEdge != ScreenEdge.MAXIMIZED) {
@@ -68,48 +68,50 @@ function onClientMoved(client) {
 
 // resize + add the gaps
 function maxAndGap(client, screenEdge) {
+    if (clientIsExcluded(client)) return
+
     var maxArea = workspace.clientArea(workspace.MaximizeArea, client);
     var height = maxArea.height;
     var width = maxArea.width;
     
     var gap = {
-        top: workspace.gap,
-        right: workspace.gap,
-        left: workspace.gap,
-        bottom: workspace.gap        
+        top: config.gap,
+        right: config.gap,
+        left: config.gap,
+        bottom: config.gap        
     }
     
     // size the window and make sure that the gap doesnt double up, just looks nicer to me
     switch(screenEdge) {
         case ScreenEdge.LEFT:
-            gap['right'] = workspace.gap/2;
+            gap['right'] = config.gap/2;
             width = width/2;
             break;
         case ScreenEdge.RIGHT:
-            gap['left'] = workspace.gap/2;
+            gap['left'] = config.gap/2;
             width = width/2;            
             break;
         case ScreenEdge.TOP_LEFT:
-            gap['bottom'] = workspace.gap/2;
-            gap['right'] = workspace.gap/2;
+            gap['bottom'] = config.gap/2;
+            gap['right'] = config.gap/2;
             height = height/2;
             width = width/2;            
             break;
         case ScreenEdge.TOP_RIGHT:
-            gap['bottom'] = workspace.gap/2;
-            gap['left'] = workspace.gap/2;
+            gap['bottom'] = config.gap/2;
+            gap['left'] = config.gap/2;
             height = height/2;
             width = width/2;            
             break;
         case ScreenEdge.BOTTOM_LEFT:
-            gap['top'] = workspace.gap/2;
-            gap['right'] = workspace.gap/2;
+            gap['top'] = config.gap/2;
+            gap['right'] = config.gap/2;
             height = height/2;
             width = width/2;            
             break;
         case ScreenEdge.BOTTOM_RIGHT:
-            gap['top'] = workspace.gap/2;
-            gap['left'] = workspace.gap/2;
+            gap['top'] = config.gap/2;
+            gap['left'] = config.gap/2;
             height = height/2;
             width = width/2;
             break;
@@ -127,10 +129,10 @@ function maxAndGap(client, screenEdge) {
 // returns false if the window is not being dragged across the top of the screen
 // otherwise returns {x y height width} of the monitor we're at the top of
 function isReadyToMaximise(client) {
-    var tolerance = workspace.screenEdgeTolerance;
+    var tolerance = config.screenEdgeTolerance;
     var clientArea = workspace.clientArea(workspace.MaximizeArea, client);
     
-    var lowerMonitorY = workspace.displayHeight - clientArea.height - workspace.topMargin;
+    var lowerMonitorY = workspace.displayHeight - clientArea.height - config.topMargin;
     var rightMonitorX = workspace.displayWidth - clientArea.width;
     var midPointX = client.geometry.x + (client.geometry.width / 2);
     
@@ -159,15 +161,15 @@ function isReadyToMaximise(client) {
 function getScreenEdge(client) {
     var clientArea = workspace.clientArea(workspace.MaximizeArea, client);
     var displayArea = { width: workspace.displayWidth, height: workspace.displayHeight };    
-    var tolerance = workspace.screenEdgeTolerance;
+    var tolerance = config.screenEdgeTolerance;
     // Left Side
     if (nearToInt(client.x, clientArea.x, tolerance)) {
         // Left or Top Left
         if (nearToInt(client.y, clientArea.y, tolerance)) {
             // Maximized or Left
-            if (nearToInt(client.height + workspace.gap, clientArea.height, tolerance)) {
+            if (nearToInt(client.height + config.gap, clientArea.height, tolerance)) {
                 // Maximized
-                if (nearToInt(client.width + workspace.gap, clientArea.width, tolerance)) {
+                if (nearToInt(client.width + config.gap, clientArea.width, tolerance)) {
                     return ScreenEdge.MAXIMIZED;
                 }
                 // Left
@@ -189,7 +191,7 @@ function getScreenEdge(client) {
         // Right or Top Right
         if (nearToInt(client.y, clientArea.y, tolerance)) {
             // Right
-            if (nearToInt(client.height + workspace.gap, clientArea.height, tolerance)) {
+            if (nearToInt(client.height + config.gap, clientArea.height, tolerance)) {
                 return ScreenEdge.RIGHT;
             }
             // Top Right
@@ -207,11 +209,13 @@ function getScreenEdge(client) {
 }
 
 function maximise(client) {
+    if (clientIsExcluded(client)) return
+
     var max = isReadyToMaximise(client);
     if(!!max) {
         client.geometry = {
             x: max['x'],
-            y: max['y'] + workspace.topMargin,
+            y: max['y'] + config.topMargin,
             width: max['width'],
             height: max['height']
         };
@@ -220,13 +224,16 @@ function maximise(client) {
 }
 
 function tileLeft() {
+    reloadConfig();
     var client = workspace.activeClient;
+    if (clientIsExcluded(client)) return
+
     var edge = getScreenEdge(client);
     print("Screen edge is: " + edge)
     var monitor = getClientMonitor(client);
 
     if(edge != ScreenEdge.LEFT) {
-        client.geometry = { x: monitor['x'], y: monitor['y'] + workspace.topMargin, width: monitor['width']/2, height: monitor['height'] };
+        client.geometry = { x: monitor['x'], y: monitor['y'] + config.topMargin, width: monitor['width']/2, height: monitor['height'] };
         maxAndGap(client, ScreenEdge.LEFT);
         return
     }
@@ -240,13 +247,16 @@ function tileLeft() {
 }
 
 function tileRight() {
+    reloadConfig();
     var client = workspace.activeClient;
+    if (clientIsExcluded(client)) return
+
     var edge = getScreenEdge(client);
     print("Screen edge is: " + edge)
     var monitor = getClientMonitor(client);
 
     if(edge != ScreenEdge.RIGHT) {
-        client.geometry = { x: monitor['x'] + (monitor['width']/2), y: monitor['y'] + workspace.topMargin, width: monitor['width']/2, height: monitor['height'] };
+        client.geometry = { x: monitor['x'] + (monitor['width']/2), y: monitor['y'] + config.topMargin, width: monitor['width']/2, height: monitor['height'] };
         maxAndGap(client, ScreenEdge.RIGHT);
         return
     }
@@ -263,7 +273,7 @@ function tileRight() {
 function getClientMonitor(client) {
     var clientArea = workspace.clientArea(workspace.MaximizeArea, client);
     
-    var lowerMonitorY = workspace.displayHeight - clientArea.height - workspace.topMargin;
+    var lowerMonitorY = workspace.displayHeight - clientArea.height - config.topMargin;
     var rightMonitorX = workspace.displayWidth - clientArea.width;
     var midPointX = client.geometry.x + (client.geometry.width / 2);
     
@@ -286,8 +296,19 @@ function getClientMonitor(client) {
     }   
 }
 
+function clientIsExcluded(client) {
+    for(var i=0; i<config.excludes.length; i++) {        
+        var result = client.caption.match(new RegExp(config.excludes[i])) != null;
+        if (result) {
+            print(client.caption + " is in our exclude list, skipping");
+            return result;
+        }
+    }
+    return false;
+}
 
-function connectClients() {
+function startLazyGaps() {
+    reloadConfig();
     registerShortcut('kwin-lazy-gaps: Tile Left', 'kwin-lazy-gaps: Tile Left', 'Meta+Left', tileLeft);
     registerShortcut('kwin-lazy-gaps: Tile Right', 'kwin-lazy-gaps: Tile Right', 'Meta+Right', tileRight);
 
@@ -304,7 +325,13 @@ function onClientAdded(client) {
     if (typeof client === 'undefined') {
         return;
     }
-    maximise(client);
+
+    print("adding client " + client.caption);
+    var edge = getScreenEdge(client);
+    if(edge == ScreenEdge.MAXIMIZED) {
+        maximise(client);
+    }
+
     client.clientFinishUserMovedResized.connect(onClientMoved);
     client.clientStepUserMovedResized.connect(movingStepper);
 }
@@ -320,4 +347,36 @@ function onClientRemoved(client) {
 
 function nearToInt(a, b, tolerance) {
     return (b >= a - tolerance) && (b <= a + tolerance);
+}
+
+function reloadConfig() {
+    print("pre-reload config: ");
+    print([
+        config.gap,
+        config.screenEdgeTolerance,
+        config.topMargin,
+        config.excludes
+    ]);
+
+    // user vars
+    config.gap = readConfig("gap", 10);
+    config.screenEdgeTolerance = readConfig("tolerance", 25);
+    config.topMargin = readConfig("topMargin", 16);
+
+    // list of clients to exclude
+    var excludes = readConfig("excludes", "");
+    config.excludes = [
+      "Desktop — Plasma",
+      "Latte Shell — Latte Dock",
+      "Latte Dock"
+    ].concat((excludes == "" ? [] : ("" + excludes).split("\n"))); 
+
+
+    print("post-reload config: ");
+    print([
+        config.gap,
+        config.screenEdgeTolerance,
+        config.topMargin,
+        config.excludes
+    ]);
 }
