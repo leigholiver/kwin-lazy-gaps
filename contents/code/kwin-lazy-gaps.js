@@ -8,6 +8,12 @@ workspace.gap = readConfig("gap", 10);
 workspace.screenEdgeTolerance = readConfig("tolerance", 25);
 workspace.topMargin = readConfig("topMargin", 16);
 
+// list of clients to exclude
+var excludes = [
+    "Desktop — Plasma",
+    "Latte Shell — Latte Dock"
+];
+
 // constants
 var ScreenEdge = {
   FLOATING:    -2,
@@ -68,6 +74,11 @@ function onClientMoved(client) {
 
 // resize + add the gaps
 function maxAndGap(client, screenEdge) {
+    if(excludes.indexOf(client.caption) != -1) {
+        print(client.caption + " is in our exclude list, skipping");
+        return;
+    }
+    
     var maxArea = workspace.clientArea(workspace.MaximizeArea, client);
     var height = maxArea.height;
     var width = maxArea.width;
@@ -221,6 +232,12 @@ function maximise(client) {
 
 function tileLeft() {
     var client = workspace.activeClient;
+
+    if(excludes.indexOf(client.caption) != -1) {
+        print(client.caption + " is in our exclude list, skipping");
+        return;
+    }
+
     var edge = getScreenEdge(client);
     print("Screen edge is: " + edge)
     var monitor = getClientMonitor(client);
@@ -241,6 +258,12 @@ function tileLeft() {
 
 function tileRight() {
     var client = workspace.activeClient;
+
+    if(excludes.indexOf(client.caption) != -1) {
+        print(client.caption + " is in our exclude list, skipping");
+        return;
+    }
+
     var edge = getScreenEdge(client);
     print("Screen edge is: " + edge)
     var monitor = getClientMonitor(client);
