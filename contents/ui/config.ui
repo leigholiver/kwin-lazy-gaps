@@ -96,6 +96,13 @@
        </item>
       </layout>
      </item>
+      <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>After changing settings, you must disable the plugin, apply, enable the plugin, and apply again.</string>
+         </property>
+        </widget>
+       </item>
     </layout>
    </item>
   </layout>
