@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+    <kcfgfile name=""/>
+    <group name="">
+        <entry name="gap" type="int">
+          <label>Gap size (px)</label>
+          <default>10</default>
+        </entry>
+        <entry name="tolerance" type="int">
+          <label>Wiggle room for edge detection (px)</label>
+          <default>25</default>
+        </entry>
+        <entry name="topMargin" type="int">
+          <label>Margin at top of screen (panel etc) (px)</label>
+          <default>0</default>
+        </entry>
+    </group>
+</kcfg>

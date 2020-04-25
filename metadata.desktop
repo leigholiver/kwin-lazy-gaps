@@ -1,0 +1,22 @@
+[Desktop Entry]
+Name=Lazy Gaps
+Comment=Gaps aesthetic without a tiling window manager
+Icon=preferences-system-windows-script-test
+
+X-Plasma-API=javascript
+X-Plasma-MainScript=code/kwin-lazy-gaps.js
+
+X-KDE-PluginInfo-Name=lazy-gaps
+X-KDE-PluginInfo-Version=0.0.1
+X-KDE-PluginInfo-Author=Leigh Oliver
+X-KDE-PluginInfo-Website=github.com/leigholiver/kwin-lazy-gaps
+X-KDE-PluginInfo-Email=leigholiver@users.noreply.github.com
+X-KDE-PluginInfo-Depends=
+X-KDE-PluginInfo-License=GPL
+X-KDE-ServiceTypes=KWin/Script,KCModule
+
+X-KDE-Library=kwin/effects/configs/kcm_kwin4_genericscripted
+X-KDE-PluginKeyword=lazy-gaps
+X-KDE-ParentComponents=lazy-gaps
+
+Type=Service
